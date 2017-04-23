@@ -24,22 +24,28 @@ Q2tokens = tokenize_words(x = dtrain$question2, lowercase = T)
 # Columns with number of words in question
 dtrain$Q1nwords = as.vector(sapply(Q1tokens, function(x) {length(x)}))
 dtrain$Q2nwords = as.vector(sapply(Q2tokens, function(x) {length(x)}))
-Q1.1=unlist(Q1tokens, recursive = F)
+
+# Store common words per pair in list
 CommonWordCount = mapply(FUN = function(x) {intersect(x,y)}, x=Q1tokens, y=Q2tokens)
+
+# Store count of common words per pair in new column
 dtrain$CommonWordCount = NA
 for(i in 1:length(Q1tokens)){
   dtrain$CommonWordCount[i] = length(intersect(x = Q1tokens[[i]], y = Q2tokens[[i]]))
 }
 
+# Create index of match in character count
 dtrain$CharQuotient = apply(dtrain[,names(dtrain) %in% c('Q1nchar','Q2nchar')], 1, 
                             function(x) {min(x)/max(x)})
+
+# Create index of match in word count
 dtrain$WordQuotient = apply(dtrain[,names(dtrain) %in% c('Q1nwords','Q2nwords')], 1,
                             function(x) {min(x)/max(x)})
 
 dtrain$CommonQuotient = dtrain$CommonWordCount / (dtrain$Q1nwords + dtrain$Q2nwords)
 
+# Check correlation
 cor(x = dtrain[,c(12:14)], y = dtrain[,6])
-table(dtrain$is_duplicate)
 
 # linear regression
 set.seed(1)
